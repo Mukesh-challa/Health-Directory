@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Directory - Patient Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                DEFAULT: '#0062FF',
+                light: '#E6F0FF',
+                dark: '#004ECB',
+              },
+              secondary: '#6B7280',
+              success: '#10B981',
+              warning: '#F59E0B',
+              danger: '#EF4444',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .icon-bg {
+            border-radius: 50%;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10 dark:bg-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 2L12 8"></path><path d="M12 16L12 22"></path><path d="M17 5L19.5 7.5"></path><path d="M5 7.5L7 5"></path><path d="M17 19L19.5 16.5"></path><path d="M5 16.5L7 19"></path><path d="M2 12L8 12"></path><path d="M16 12L22 12"></path></svg>
+                        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Health<span class="text-primary">Directory</span></h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="theme-toggle" type="button" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <!-- Sun icon for light mode -->
+                            <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 00-.707-.293H15a1 1 0 000 2h1.06a1 1 0 00.707-1.707zM17 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-8 4a1 1 0 01-1 1H4a1 1 0 110-2h3a1 1 0 011 1zm-6.293-4.293a1 1 0 00-1.414 1.414L3.707 14.707a1 1 0 001.414-1.414l-.707-.707zM10 18a1 1 0 01-1 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z"></path></svg>
+                            <!-- Moon icon for dark mode -->
+                            <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        </button>
+                        <button class="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/E6F0FF/0062FF?text=B" alt="User Avatar" onerror="this.onerror=null;this.src='https://placehold.co/100x100/cccccc/ffffff?text=U';">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Ben</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Patient ID: VH88431</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <!-- Welcome Message -->
+                <div class="mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100">Welcome back, Ben!</h2>
+                    <p class="text-secondary mt-1 dark:text-gray-400">Here's a summary of your health dashboard.</p>
+                </div>
+
+                <!-- Vitals Overview -->
+                <section id="vitals-overview" class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Your Vitals Overview</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <!-- Heart Rate -->
+                        <div class="card p-5 flex items-start justify-between dark:bg-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-secondary dark:text-gray-400">Heart Rate</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1 dark:text-gray-100">68 <span class="text-lg font-medium">bpm</span></p>
+                                <div class="flex items-center text-sm text-success mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                    <span class="ml-1">Normal</span>
+                                </div>
+                            </div>
+                            <div class="icon-bg bg-red-100 text-red-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            </div>
+                        </div>
+                        <!-- Blood Pressure -->
+                        <div class="card p-5 flex items-start justify-between dark:bg-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-secondary dark:text-gray-400">Blood Pressure</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1 dark:text-gray-100">125/82</p>
+                                <div class="flex items-center text-sm text-warning mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span class="ml-1">Elevated</span>
+                                </div>
+                            </div>
+                            <div class="icon-bg bg-blue-100 text-blue-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"></path></svg>
+                            </div>
+                        </div>
+                        <!-- Blood Sugar -->
+                        <div class="card p-5 flex items-start justify-between dark:bg-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-secondary dark:text-gray-400">Blood Sugar</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1 dark:text-gray-100">105 <span class="text-lg font-medium">mg/dL</span></p>
+                                <div class="flex items-center text-sm text-success mt-2">
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                    <span class="ml-1">Controlled</span>
+                                </div>
+                            </div>
+                            <div class="icon-bg bg-yellow-100 text-yellow-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M18 6l-6 6-6-6"></path></svg>
+                            </div>
+                        </div>
+                        <!-- Body Temperature -->
+                        <div class="card p-5 flex items-start justify-between dark:bg-gray-700">
+                            <div>
+                                <p class="text-sm font-medium text-secondary dark:text-gray-400">Temperature</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1 dark:text-gray-100">98.4 <span class="text-lg font-medium">&deg;F</span></p>
+                                <div class="flex items-center text-sm text-success mt-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                    <span class="ml-1">Normal</span>
+                                </div>
+                            </div>
+                            <div class="icon-bg bg-green-100 text-green-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Current Medications -->
+                <section id="medications" class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Current Medications</h3>
+                    <div class="card p-4 dark:bg-gray-700">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Clopitab 150</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">150mg, Once daily</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Ecosprin</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">75mg, Once daily</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Aztor 80</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">80mg, At bedtime</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Dytor Plus LS</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">1 tablet, Once daily</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Prolomet XL</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">50mg, Once daily</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Linero D</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">As prescribed</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Dapefy</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">As prescribed</p>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Glycomet</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">As prescribed</p>
+                            </div>
+                             <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Haai</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">As prescribed</p>
+                            </div>
+                             <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                <p class="font-medium text-gray-800 dark:text-gray-100">Thyronorm</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">As prescribed</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Daily Vitals Tracking -->
+                <section id="daily-vitals" class="mb-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <!-- Log Vitals Form -->
+                        <div class="lg:col-span-2">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Log Today's Vitals</h3>
+                            <div class="card p-5 space-y-4 dark:bg-gray-700">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">BS (6am Fasting)</label>
+                                        <input type="number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="mg/dL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">BS (12pm)</label>
+                                        <input type="number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="mg/dL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">BS (9pm)</label>
+                                        <input type="number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="mg/dL">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Blood Pressure</label>
+                                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="SYS/DIA">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Temperature</label>
+                                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="°F">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Remarks</label>
+                                    <textarea rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="Any symptoms or notes..."></textarea>
+                                </div>
+                                <button class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-primary-dark transition">Save Vitals</button>
+                            </div>
+                        </div>
+                        <!-- Vitals History -->
+                        <div class="lg:col-span-3">
+                             <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Vitals History</h3>
+                             <div class="card dark:bg-gray-700">
+                                <div class="p-4">
+                                    <canvas id="vitalsChart"></canvas>
+                                </div>
+                                <div class="overflow-x-auto rounded-lg">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-200">
+                                            <tr>
+                                                <th class="px-4 py-3">Date</th>
+                                                <th class="px-4 py-3">BS (6am)</th>
+                                                <th class="px-4 py-3">BS (12pm)</th>
+                                                <th class="px-4 py-3">BS (9pm)</th>
+                                                <th class="px-4 py-3">BP</th>
+                                                <th class="px-4 py-3">Temp</th>
+                                                <th class="px-4 py-3">Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">28 Aug 2025</td>
+                                                <td class="px-4 py-3">102</td>
+                                                <td class="px-4 py-3">145</td>
+                                                <td class="px-4 py-3">120</td>
+                                                <td class="px-4 py-3">126/84</td>
+                                                <td class="px-4 py-3">98.5°F</td>
+                                                <td class="px-4 py-3 text-xs">Feeling good.</td>
+                                            </tr>
+                                            <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">27 Aug 2025</td>
+                                                <td class="px-4 py-3">98</td>
+                                                <td class="px-4 py-3">160</td>
+                                                <td class="px-4 py-3">135</td>
+                                                <td class="px-4 py-3">124/80</td>
+                                                <td class="px-4 py-3">98.6°F</td>
+                                                <td class="px-4 py-3 text-xs">Slight headache.</td>
+                                            </tr>
+                                            <tr class="bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600">
+                                                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">26 Aug 2025</td>
+                                                <td class="px-4 py-3">105</td>
+                                                <td class="px-4 py-3">130</td>
+                                                <td class="px-4 py-3">115</td>
+                                                <td class="px-4 py-3">128/85</td>
+                                                <td class="px-4 py-3">98.4°F</td>
+                                                <td class="px-4 py-3 text-xs">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Diet Tracking -->
+                <section id="diet-tracking" class="mb-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Recommended Diet -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Recommended Diet</h3>
+                            <div class="card p-5 space-y-3 dark:bg-gray-700">
+                                <div>
+                                    <p class="font-semibold text-gray-800 dark:text-gray-100">Breakfast</p>
+                                    <p class="text-sm text-secondary dark:text-gray-400">Oats with fruits, nuts, and a glass of milk.</p>
+                                </div>
+                                <hr class="border-gray-200 dark:border-gray-600"/>
+                                <div>
+                                    <p class="font-semibold text-gray-800 dark:text-gray-100">Lunch</p>
+                                    <p class="text-sm text-secondary dark:text-gray-400">2 rotis, 1 bowl of dal, 1 bowl of vegetable curry, and salad.</p>
+                                </div>
+                                <hr class="border-gray-200 dark:border-gray-600"/>
+                                <div>
+                                    <p class="font-semibold text-gray-800 dark:text-gray-100">Dinner</p>
+                                    <p class="text-sm text-secondary dark:text-gray-400">1 bowl of soup, grilled chicken/paneer, and sauteed vegetables.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Log Today's Diet -->
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Log Today's Diet</h3>
+                            <div class="card p-5 space-y-4 dark:bg-gray-700">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Breakfast</label>
+                                    <textarea rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="What did you have for breakfast?"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Lunch</label>
+                                    <textarea rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="What did you have for lunch?"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Dinner</label>
+                                    <textarea rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100" placeholder="What did you have for dinner?"></textarea>
+                                </div>
+                                <button class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-primary-dark transition">Save Diet Log</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Appointments and Health Team Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                    <!-- Appointments -->
+                    <section id="appointments" class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Upcoming Appointments</h3>
+                            <button class="text-sm font-medium text-primary hover:text-primary-dark">View All</button>
+                        </div>
+                        <div class="card dark:bg-gray-700">
+                            <ul class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <li class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <div class="flex items-center space-x-4">
+                                        <img class="h-12 w-12 rounded-full object-cover" src="https://placehold.co/100x100/E0F2FE/0EA5E9?text=SS" alt="Dr. Srikar">
+                                        <div>
+                                            <p class="font-semibold text-gray-800 dark:text-gray-100">Dr. Srikar</p>
+                                            <p class="text-sm text-secondary dark:text-gray-400">Cardiologist</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium text-gray-700 dark:text-gray-200">15 Sep 2025</p>
+                                        <p class="text-sm text-secondary dark:text-gray-400">11:00 AM</p>
+                                    </div>
+                                </li>
+                                <li class="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <div class="flex items-center space-x-4">
+                                        <img class="h-12 w-12 rounded-full object-cover" src="https://placehold.co/100x100/F3E8FF/A855F7?text=RP" alt="Dr. Rudvij Pandya">
+                                        <div>
+                                            <p class="font-semibold text-gray-800 dark:text-gray-100">Dr. Rudvij Pandya</p>
+                                            <p class="text-sm text-secondary dark:text-gray-400">Ophthalmologist</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium text-gray-700 dark:text-gray-200">22 Sep 2025</p>
+                                        <p class="text-sm text-secondary dark:text-gray-400">03:30 PM</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+                    
+                    <!-- My Health Team & Conditions -->
+                    <section id="health-team" class="lg:col-span-1">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200">My Health Team & Conditions</h3>
+                        </div>
+                        <div class="card p-4 space-y-4 dark:bg-gray-700">
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Coronary Artery Disease</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">Treated by Dr. Srikar (Cardiologist)</p>
+                                <p class="text-xs text-gray-500 mt-1 italic dark:text-gray-400">Note: Heart stent procedure performed.</p>
+                            </div>
+                             <hr class="border-gray-200 dark:border-gray-600"/>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Retinopathy</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">Treated by Dr. Rudvij Pandya (Ophthalmologist)</p>
+                            </div>
+                             <hr class="border-gray-200 dark:border-gray-600"/>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Diabetes</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">Treated by Dr. Kiran Kumar (Diabetologist)</p>
+                            </div>
+                             <hr class="border-gray-200 dark:border-gray-600"/>
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">Foot Ulcer</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">Treated by Dr. Srinivas (General Surgeon)</p>
+                                <p class="text-xs text-gray-500 mt-1 italic dark:text-gray-400">Note: Operation performed.</p>
+                            </div>
+                             <hr class="border-gray-200 dark:border-gray-600"/>
+                             <div>
+                                <p class="font-semibold text-gray-800 dark:text-gray-100">General Health</p>
+                                <p class="text-sm text-secondary dark:text-gray-400">Consults Dr. Rajasekhar (General Physician)</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Clinical Laboratory Report History -->
+                <section id="report-history" class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 dark:text-gray-200">Clinical Laboratory Report History</h3>
+                    <div class="card dark:bg-gray-700">
+                        <div class="overflow-x-auto rounded-lg">
+                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-200">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Date</th>
+                                        <th scope="col" class="px-6 py-3">Report Title</th>
+                                        <th scope="col" class="px-6 py-3">Consulting Doctor</th>
+                                        <th scope="col" class="px-6 py-3">Status</th>
+                                        <th scope="col" class="px-6 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">25 Aug 2025</td>
+                                        <td class="px-6 py-4">Complete Blood Count (CBC)</td>
+                                        <td class="px-6 py-4">Dr. Kiran Kumar</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">Available</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="#" class="font-medium text-primary hover:underline">Download</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">12 Jul 2025</td>
+                                        <td class="px-6 py-4">HbA1c Test</td>
+                                        <td class="px-6 py-4">Dr. Kiran Kumar</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">Available</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="#" class="font-medium text-primary hover:underline">Download</a>
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-white border-b hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">05 May 2025</td>
+                                        <td class="px-6 py-4">Lipid Panel</td>
+                                        <td class="px-6 py-4">Dr. Srikar</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">Available</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="#" class="font-medium text-primary hover:underline">Download</a>
+                                        </td>
+                                    </tr>
+                                     <tr class="bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600">
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">28 Aug 2025</td>
+                                        <td class="px-6 py-4">Eye Exam Report</td>
+                                        <td class="px-6 py-4">Dr. Rudvij Pandya</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-700 dark:text-blue-100">Pending</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <span class="font-medium text-gray-400 cursor-not-allowed dark:text-gray-500">Download</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation (for mobile) -->
+        <nav class="bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)] fixed bottom-0 w-full flex justify-around py-2 sm:hidden z-10 dark:bg-gray-800 dark:shadow-[0_-2px_5px_rgba(0,0,0,0.3)]">
+            <a href="#vitals" class="flex flex-col items-center text-primary w-full p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"></path></svg>
+                <span class="text-xs font-medium">Vitals</span>
+            </a>
+            <a href="#appointments" class="flex flex-col items-center text-secondary hover:text-primary w-full p-1 dark:text-gray-400 dark:hover:text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span class="text-xs font-medium">Schedule</span>
+            </a>
+            <a href="#report-history" class="flex flex-col items-center text-secondary hover:text-primary w-full p-1 dark:text-gray-400 dark:hover:text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <span class="text-xs font-medium">Records</span>
+            </a>
+            <a href="#" class="flex flex-col items-center text-secondary hover:text-primary w-full p-1 dark:text-gray-400 dark:hover:text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                <span class="text-xs font-medium">Profile</span>
+            </a>
+        </nav>
+        
+        <!-- Add padding to the bottom of main content to avoid overlap with nav -->
+        <div class="h-16 sm:hidden"></div>
+    </div>
+    <script>
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Change the icons inside the button based on previous theme
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        themeToggleBtn.addEventListener('click', function() {
+
+            // toggle icons inside button
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+
+            // if NOT set via local storage previously
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const vitalsTable = document.querySelector('#daily-vitals table tbody');
+            const rows = vitalsTable.querySelectorAll('tr');
+
+            const dates = [];
+            const bs6am = [];
+            const bs12pm = [];
+            const bs9pm = [];
+            const bpSys = [];
+            const bpDia = [];
+            const temps = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                dates.unshift(cells[0].textContent); // Date
+                bs6am.unshift(parseInt(cells[1].textContent)); // BS (6am)
+                bs12pm.unshift(parseInt(cells[2].textContent)); // BS (12pm)
+                bs9pm.unshift(parseInt(cells[3].textContent)); // BS (9pm)
+                const bp = cells[4].textContent.split('/');
+                bpSys.unshift(parseInt(bp[0])); // BP (SYS)
+                bpDia.unshift(parseInt(bp[1])); // BP (DIA)
+                temps.unshift(parseFloat(cells[5].textContent.replace('°F', ''))); // Temp
+            });
+
+            const ctx = document.getElementById('vitalsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'BS (6am Fasting)',
+                            data: bs6am,
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'BS (12pm)',
+                            data: bs12pm,
+                            borderColor: 'rgb(54, 162, 235)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'BS (9pm)',
+                            data: bs9pm,
+                            borderColor: 'rgb(255, 206, 86)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Blood Pressure (SYS)',
+                            data: bpSys,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Blood Pressure (DIA)',
+                            data: bpDia,
+                            borderColor: 'rgb(153, 102, 255)',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Temperature',
+                            data: temps,
+                            borderColor: 'rgb(255, 159, 64)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Vitals History Chart'
+                        },
+                        legend: {
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#D1D5DB' : '#4B5563' // Tailwind gray-300 or gray-700
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#D1D5DB' : '#4B5563'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? '#4B5563' : '#E5E7EB'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#D1D5DB' : '#4B5563'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? '#4B5563' : '#E5E7EB'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
